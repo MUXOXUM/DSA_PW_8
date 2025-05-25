@@ -1,0 +1,19 @@
+{
+  "name": "pharmacy-api",
+  "version": "1.0.0",
+  "description": "API for managing pharmacies and drug inventory",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "api",
+    "pharmacy",
+    "drugs"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+} 
