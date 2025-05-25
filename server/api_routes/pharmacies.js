@@ -10,6 +10,20 @@ router.get('/', (req, res) => {
   res.json(pharmacies);
 });
 
+// GET pharmacies by search query (e.g., by name or address)
+router.get('/search', (req, res) => {
+  const { query } = req.query;
+  if (!query) {
+    return res.status(400).send('Search query is required.');
+  }
+  const searchTerm = query.toLowerCase();
+  const results = pharmacies.filter(pharmacy => 
+    pharmacy.name.toLowerCase().includes(searchTerm) || 
+    pharmacy.address.toLowerCase().includes(searchTerm)
+  );
+  res.json(results);
+});
+
 // GET a specific pharmacy by ID
 router.get('/:id', (req, res) => {
   const pharmacy = pharmacies.find(p => p.id === parseInt(req.params.id));
