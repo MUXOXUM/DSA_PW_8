@@ -27,7 +27,6 @@ node server.js
 4. pharmacies.js: для управления аптеками (6 эндпоинтов)
 5. inventory.js: для управления инвентарем лекарств в аптеках (8 эндпоинтов, включая проверку сроков годности отсутствующих товаров и общей стоимости).
 
----
 
 ## `api_routes/drugs.js`
 
@@ -51,7 +50,6 @@ node server.js
 * `GET /api/drugs/search`
   Поиск лекарств (например, по названию).
 
----
 
 ## `api_routes/suppliers.js`
 
@@ -72,7 +70,6 @@ node server.js
 * `DELETE /api/suppliers/:id`
   Удалить поставщика по ID.
 
----
 
 ## `api_routes/orders.js`
 
@@ -93,7 +90,6 @@ node server.js
 * `DELETE /api/orders/:id`
   Удалить заказ по ID.
 
----
 
 ## `api_routes/inventory.js`
 
