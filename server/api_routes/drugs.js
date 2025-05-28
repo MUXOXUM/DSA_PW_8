@@ -17,8 +17,8 @@ router.get('/search', (req, res) => {
     return res.status(400).send('Search query (e.g., name) is required.');
   }
   const searchTerm = name.toLowerCase();
-  const_results = drugs.filter(drug => drug.name.toLowerCase().includes(searchTerm));
-  res.json(const_results);
+  const results = drugs.filter(drug => drug.name.toLowerCase().includes(searchTerm));
+  res.json(results);
 });
 
 // GET a specific drug by ID

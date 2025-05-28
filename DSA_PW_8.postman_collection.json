@@ -1,0 +1,1291 @@
+{
+	"info": {
+		"_postman_id": "25505add-2321-455d-aee2-e9ad95a58e1a",
+		"name": "DSA_PW_8",
+		"description": "Технологии разработки серверных приложений - Задание 8  \nСервер работает на http://localhost:3000EndFragment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45386768",
+		"_collection_link": "https://eldonin-8618923.postman.co/workspace/86405fc1-b391-4ee7-8dcf-a3afd2b86e3e/collection/45386768-25505add-2321-455d-aee2-e9ad95a58e1a?action=share&source=collection_link&creator=45386768"
+	},
+	"item": [
+		{
+			"name": "Drugs",
+			"item": [
+				{
+					"name": "Add drug",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 201 Created\", function () {\r",
+									"        pm.response.to.have.status(201);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the created drug with an ID\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('object');\r",
+									"        pm.expect(responseData.id).to.be.a('number');\r",
+									"        pm.expect(responseData.name).to.eql(\"Amoxicillin\");\r",
+									"        pm.expect(responseData.manufacturer).to.eql(\"Valdor\");\r",
+									"        pm.expect(responseData.price).to.eql(99.98);\r",
+									"        // Store the ID for use in other requests (e.g., GET by ID, PUT, DELETE)\r",
+									"        pm.collectionVariables.set(\"createdDrugId\", responseData.id);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Name, manufacturer, and price are required\", function () {\r",
+									"        // This test is more conceptual for POST.\r",
+									"        // You would create separate requests with missing fields to test this.\r",
+									"        // For example, a request with no \"name\" should return 400.\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"name\": \"Amoxicillin\",\r\n        \"manufacturer\": \"Valdor\",\r\n        \"dosage\": \"250mg\",\r\n        \"price\": 99.98\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/drugs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"drugs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all drugs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is an array\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"If drugs exist, array contains drug objects\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        if (responseData.length > 0) {\r",
+									"            const firstDrug = responseData[0];\r",
+									"            pm.expect(firstDrug).to.be.an('object');\r",
+									"            pm.expect(firstDrug).to.have.all.keys('id', 'name', 'manufacturer', 'dosage', 'price');\r",
+									"        }\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/drugs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"drugs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get drug by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK for existing drug\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the correct drug details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const expectedId = parseInt(pm.collectionVariables.get(\"createdDrugId\"));\r",
+									"        pm.expect(responseData.id).to.eql(expectedId);\r",
+									"        pm.expect(responseData.name).to.exist; // Or check against a known value if you update it\r",
+									"    });\r",
+									"\r",
+									"    // Test for a non-existent drug ID\r",
+									"    // Create a separate request for this:\r",
+									"    // Method: GET\r",
+									"    // URL: {{baseUrl}}/api/drugs/99999 (or any ID you know doesn't exist)\r",
+									"    // Tests (for non-existent ID):\r",
+									"    // pm.test(\"Status code is 404 Not Found for non-existent drug\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });\r",
+									"    // pm.test(\"Response body indicates drug not found\", function () {\r",
+									"    //     pm.expect(pm.response.text()).to.include(\"Drug not found.\");\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get drug by name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON and an array\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Results include drugs matching the search term\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const searchTerm = \"amox\"; // The search term used in the request URL query parameter\r",
+									"        if (responseData.length > 0) {\r",
+									"            responseData.forEach(function(drug) {\r",
+									"                pm.expect(drug.name.toLowerCase()).to.include(searchTerm);\r",
+									"            });\r",
+									"        } else {\r",
+									"            // This is okay if no drugs match, but you might want a more specific test\r",
+									"            // if you know a drug *should* match.\r",
+									"            console.log(\"Search returned no results, which might be expected.\");\r",
+									"        }\r",
+									"    });\r",
+									"\r",
+									"    // Test for missing search query\r",
+									"    // Create a separate request:\r",
+									"    // Method: GET\r",
+									"    // URL: {{baseUrl}}/api/drugs/search\r",
+									"    // Tests:\r",
+									"    // pm.test(\"Status code is 400 for missing search query\", function () {\r",
+									"    //     pm.response.to.have.status(400);\r",
+									"    // });\r",
+									"    // pm.test(\"Response body indicates search query is required\", function () {\r",
+									"    //     pm.expect(pm.response.text()).to.include(\"Search query (e.g., name) is required.\");\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/drugs/search?name=Amox",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"drugs",
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Amox"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upd drug by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the updated drug details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const expectedId = parseInt(pm.collectionVariables.get(\"createdDrugId\"));\r",
+									"        pm.expect(responseData.id).to.eql(expectedId);\r",
+									"        pm.expect(responseData.name).to.eql(\"Amoxicillin Forte\");\r",
+									"        pm.expect(responseData.price).to.eql(1200.50);\r",
+									"        pm.expect(responseData.dosage).to.eql(\"500mg\");\r",
+									"    });\r",
+									"\r",
+									"    // Test for updating a non-existent drug ID\r",
+									"    // Create a separate request for this:\r",
+									"    // Method: PUT\r",
+									"    // URL: {{baseUrl}}/api/drugs/99999\r",
+									"    // Body: (any valid drug body)\r",
+									"    // Tests:\r",
+									"    // pm.test(\"Status code is 404 Not Found for updating non-existent drug\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"name\": \"Amoxicillin Forte\",\r\n        \"price\": 1200.50,\r\n        \"dosage\": \"500mg\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete drug",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the deleted drug details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const expectedId = parseInt(pm.collectionVariables.get(\"createdDrugId\"));\r",
+									"        pm.expect(responseData.id).to.eql(expectedId);\r",
+									"    });\r",
+									"\r",
+									"    // Optionally, try to GET the deleted drug again to confirm it's gone (should be 404)\r",
+									"    // You can do this in a subsequent request in Postman or by chaining.\r",
+									"    // For example, add a new GET request to {{baseUrl}}/api/drugs/{{createdDrugId}}\r",
+									"    // and its test:\r",
+									"    // pm.test(\"Status code is 404 Not Found after delete\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });\r",
+									"\r",
+									"    // Test for deleting a non-existent drug ID\r",
+									"    // Create a separate request:\r",
+									"    // Method: DELETE\r",
+									"    // URL: {{baseUrl}}/api/drugs/99999\r",
+									"    // Tests:\r",
+									"    // pm.test(\"Status code is 404 Not Found for deleting non-existent drug\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Inventory",
+			"item": [
+				{
+					"name": "Add Drug to Pharmacy's Inventory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 201 Created for new inventory item\", function () {\r",
+									"        pm.response.to.have.status(201);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the correct new inventory item details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('object');\r",
+									"        pm.expect(responseData.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"createdPharmacyId\")));\r",
+									"        pm.expect(responseData.drugId).to.eql(parseInt(pm.collectionVariables.get(\"createdDrugId\")));\r",
+									"        pm.expect(responseData.quantity).to.eql(100);\r",
+									"        pm.expect(responseData.purchasePrice).to.eql(7.25);\r",
+									"        pm.expect(responseData.expiryDate).to.eql(\"2026-06-30\");\r",
+									"        pm.expect(responseData.batchNumber).to.eql(\"INV-BATCH-001\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Required fields validation (conceptual for this successful request)\", function () {\r",
+									"        // Create separate requests omitting quantity, purchasePrice, or expiryDate\r",
+									"        // to verify 400 Bad Request responses.\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"quantity\": 100,\r\n        \"purchasePrice\": 7.25,\r\n        \"expiryDate\": \"2026-06-30\",\r\n        \"batchNumber\": \"INV-BATCH-001\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upd Drug in Pharmacy's Inventory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    // Note: Your current code for POST update returns a 200 OK (implicitly via res.json)\r",
+									"    pm.test(\"Status code is 200 OK for updating existing inventory item\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the updated inventory item details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"createdPharmacyId\")));\r",
+									"        pm.expect(responseData.drugId).to.eql(parseInt(pm.collectionVariables.get(\"createdDrugId\")));\r",
+									"        // Initial 100 + added 50 = 150\r",
+									"        pm.expect(responseData.quantity).to.eql(150);\r",
+									"        pm.expect(responseData.purchasePrice).to.eql(7.30);\r",
+									"        pm.expect(responseData.expiryDate).to.eql(\"2026-07-31\");\r",
+									"        pm.expect(responseData.batchNumber).to.eql(\"INV-BATCH-002\");\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"quantity\": 50,\r\n        \"purchasePrice\": 7.30, // Price might change on new stock\r\n        \"expiryDate\": \"2026-07-31\", // Expiry might change\r\n        \"batchNumber\": \"INV-BATCH-002\" // Batch number will likely change\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All inventory for a specific pharmacy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON and an array\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Inventory array is not empty (assuming items were added)\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData.length).to.be.at.least(1, \"Expected at least one inventory item for the pharmacy.\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Inventory items have correct pharmacyId and required keys\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        if (responseData.length > 0) {\r",
+									"            responseData.forEach(function(item) {\r",
+									"                pm.expect(item.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"createdPharmacyId\")));\r",
+									"                pm.expect(item).to.have.all.keys('pharmacyId', 'drugId', 'quantity', 'purchasePrice', 'expiryDate', 'batchNumber');\r",
+									"            });\r",
+									"        }\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific drug in a pharmacy's inventory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK for existing inventory item\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the correct specific inventory item\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"createdPharmacyId\")));\r",
+									"        pm.expect(responseData.drugId).to.eql(parseInt(pm.collectionVariables.get(\"createdDrugId\")));\r",
+									"        pm.expect(responseData.quantity).to.eql(150); // Reflects the last update\r",
+									"        pm.expect(responseData.purchasePrice).to.eql(7.30);\r",
+									"        pm.expect(responseData.expiryDate).to.eql(\"2026-07-31\");\r",
+									"    });\r",
+									"\r",
+									"    // Test for a non-existent drugId in this pharmacy:\r",
+									"    // URL: {{baseUrl}}/api/inventory/pharmacies/{{testPharmacyId}}/drugs/99999 (use an ID you know isn't in this pharmacy's inventory)\r",
+									"    // Tests for non-existent item:\r",
+									"    // pm.test(\"Status code is 404 Not Found for non-existent item\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });\r",
+									"    // pm.test(\"Response body indicates inventory item not found\", function () {\r",
+									"    //     pm.expect(pm.response.text()).to.include(\"Inventory item not found.\");\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update details of a specific drug in inventory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the fully updated inventory details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"createdPharmacyId\")));\r",
+									"        pm.expect(responseData.drugId).to.eql(parseInt(pm.collectionVariables.get(\"createdDrugId\")));\r",
+									"        pm.expect(responseData.quantity).to.eql(120);\r",
+									"        pm.expect(responseData.purchasePrice).to.eql(7.35);\r",
+									"        pm.expect(responseData.expiryDate).to.eql(\"2026-08-30\");\r",
+									"        pm.expect(responseData.batchNumber).to.eql(\"INV-BATCH-003\");\r",
+									"    });\r",
+									"\r",
+									"    // Test updating a non-existent item (should be 404) by using a drugId not in inventory."
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"quantity\": 120,\r\n        \"purchasePrice\": 7.35,\r\n        \"expiryDate\": \"2026-08-30\",\r\n        \"batchNumber\": \"INV-BATCH-003\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Expired drugs for {{testPharmacyId}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON and an array\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Expired items array contains the expired item\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const today = new Date().toISOString().split('T')[0];\r",
+									"        let foundExpiredItem = false;\r",
+									"        responseData.forEach(function(item) {\r",
+									"            pm.expect(item.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"createdPharmacyId\")));\r",
+									"            pm.expect(item.expiryDate < today).to.be.true;\r",
+									"            if (item.batchNumber === \"EXPIRED-BATCH\") { // Or check by drugId if you used a specific one\r",
+									"                foundExpiredItem = true;\r",
+									"            }\r",
+									"        });\r",
+									"        pm.expect(foundExpiredItem, \"Expected to find the specifically added expired item\").to.be.true;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Non-expired items are not in the 'expired' list\", function(){\r",
+									"        const responseData = pm.response.json();\r",
+									"        // Check if the item with batchNumber \"INV-BATCH-003\" (which is not expired) is absent\r",
+									"        const nonExpiredItem = responseData.find(item => item.batchNumber === \"INV-BATCH-003\");\r",
+									"        pm.expect(nonExpiredItem).to.be.undefined;\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Out-of-stock drugs for {{testPharmacyId}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON and an array\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Out-of-stock array contains the item with quantity 0\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        let foundOutOfStockItem = false;\r",
+									"        responseData.forEach(function(item) {\r",
+									"            pm.expect(item.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"createdPharmacyId\")));\r",
+									"            pm.expect(item.quantity).to.eql(0);\r",
+									"            if (item.batchNumber === \"OUTOFSTOCK-BATCH\") { // Or check by drugId\r",
+									"                foundOutOfStockItem = true;\r",
+									"            }\r",
+									"        });\r",
+									"        pm.expect(foundOutOfStockItem, \"Expected to find the item set to quantity 0\").to.be.true;\r",
+									"    });\r",
+									"    // You might also add another item with quantity > 0 and check it's NOT in this list."
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Total value of inventory for {{testPharmacyId}}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains correct pharmacyId and calculated totalValue\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"testPharmacyId\")));\r",
+									"        pm.expect(responseData.totalValue).to.be.a('number');\r",
+									"        // Adjust this expected value based on the actual items you've added to the inventory for testPharmacyId\r",
+									"        pm.expect(responseData.totalValue).to.eql(90.00);\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/value",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"value"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove a drug from a pharmacy's inventory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON and contains the deleted item\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData.pharmacyId).to.eql(parseInt(pm.collectionVariables.get(\"testPharmacyId\")));\r",
+									"        pm.expect(responseData.drugId).to.eql(parseInt(pm.collectionVariables.get(\"testDrugIdWithValue\")));\r",
+									"        pm.expect(responseData.batchNumber).to.eql(\"VALUE-ITEM-1\"); // Check it's the correct item\r",
+									"    });\r",
+									"\r",
+									"    // Test deleting a non-existent item (e.g., the same ID again, or a random one) - expect 404"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/inventory/pharmacies/{{createdPharmacyId}}/drugs/{{createdDrugId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"inventory",
+								"pharmacies",
+								"{{createdPharmacyId}}",
+								"drugs",
+								"{{createdDrugId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pharmacies",
+			"item": [
+				{
+					"name": "Add pharmacy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 201 Created\", function () {\r",
+									"        pm.response.to.have.status(201);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the created pharmacy with an ID\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('object');\r",
+									"        pm.expect(responseData.id).to.be.a('number');\r",
+									"        pm.expect(responseData.name).to.eql(\"City Central Pharmacy\");\r",
+									"        pm.expect(responseData.address).to.eql(\"Penza, street 14\");\r",
+									"        pm.expect(responseData.phone).to.eql(\"79023435613\");\r",
+									"        // Store the ID for use in other requests\r",
+									"        pm.collectionVariables.set(\"createdPharmacyId\", responseData.id);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Name and address are required\", function () {\r",
+									"        // This is conceptual for the main successful POST.\r",
+									"        // Create separate POST requests with missing \"name\" or \"address\" to test 400 error.\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"name\": \"City Central Pharmacy\",\r\n        \"address\": \"Penza, street 14\",\r\n        \"phone\": \"79023435613\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/pharmacies",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"pharmacies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all pharmacies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is an array\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"If pharmacies exist, array contains pharmacy objects\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        if (responseData.length > 0) {\r",
+									"            const firstPharmacy = responseData[0];\r",
+									"            pm.expect(firstPharmacy).to.be.an('object');\r",
+									"            pm.expect(firstPharmacy).to.have.all.keys('id', 'name', 'address', 'phone');\r",
+									"        }\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/pharmacies",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"pharmacies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get pharmacy by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK for existing pharmacy\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the correct pharmacy details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const expectedId = parseInt(pm.collectionVariables.get(\"createdPharmacyId\"));\r",
+									"        pm.expect(responseData.id).to.eql(expectedId);\r",
+									"        pm.expect(responseData.name).to.eql(\"Аптека имени Центовального\"); // Or the name of the pharmacy you expect\r",
+									"    });\r",
+									"\r",
+									"    // Test for a non-existent pharmacy ID:\r",
+									"    // URL: {{baseUrl}}/api/pharmacies/99999\r",
+									"    // pm.test(\"Status code is 404 Not Found for non-existent pharmacy\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });\r",
+									"    // pm.test(\"Response body indicates pharmacy not found\", function () {\r",
+									"    //     pm.expect(pm.response.text()).to.include(\"Pharmacy not found.\");\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/pharmacies/{{createdPharmacyId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"pharmacies",
+								"{{createdPharmacyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get pharmacy by name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON and an array\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"        const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('array');\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Results include pharmacies matching the name search term\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const searchTerm = \"Центовального\"; // ensure lowercase for comparison\r",
+									"        pm.expect(responseData.length).to.be.greaterThan(0, \"Expected search to return at least one result for 'Центовального'\");\r",
+									"        if (responseData.length > 0) {\r",
+									"            responseData.forEach(function(pharmacy) {\r",
+									"                pm.expect(pharmacy.name.toLowerCase().includes(searchTerm) || pharmacy.address.toLowerCase().includes(searchTerm)).to.be.true;\r",
+									"            });\r",
+									"        }\r",
+									"    });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/pharmacies/search?query=Central",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"pharmacies",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "Central"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upd pharmacy by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the updated pharmacy details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const expectedId = parseInt(pm.collectionVariables.get(\"createdPharmacyId\"));\r",
+									"        pm.expect(responseData.id).to.eql(expectedId);\r",
+									"        pm.expect(responseData.name).to.eql(\"Pharmacy of Sun\");\r",
+									"        pm.expect(responseData.phone).to.eql(\"78435723211\");\r",
+									"        pm.expect(responseData.address).to.eql(\"Penza, street 14\"); // Address should remain unchanged\r",
+									"    });\r",
+									"\r",
+									"    // Test for updating a non-existent pharmacy:\r",
+									"    // URL: {{baseUrl}}/api/pharmacies/99999\r",
+									"    // Body: (any valid pharmacy body)\r",
+									"    // pm.test(\"Status code is 404 Not Found for updating non-existent pharmacy\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"name\": \"Pharmacy of Sun\",\r\n        \"phone\": \"78435723211\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/pharmacies/{{createdPharmacyId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"pharmacies",
+								"{{createdPharmacyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete pharmacy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"    pm.test(\"Status code is 200 OK\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response is JSON\", function () {\r",
+									"        pm.response.to.be.json;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response contains the deleted pharmacy details\", function () {\r",
+									"        const responseData = pm.response.json();\r",
+									"        const expectedId = parseInt(pm.collectionVariables.get(\"createdPharmacyId\"));\r",
+									"        pm.expect(responseData.id).to.eql(expectedId);\r",
+									"        pm.expect(responseData.name).to.eql(\"Pharmacy of Sun\"); // Name from the last update\r",
+									"    });\r",
+									"\r",
+									"    // After deleting, try to GET the same ID. It should be 404.\r",
+									"    // You can add a subsequent GET request in Postman to test this.\r",
+									"    // GET {{baseUrl}}/api/pharmacies/{{createdPharmacyId}}\r",
+									"    // Tests for this GET:\r",
+									"    // pm.test(\"Status code is 404 Not Found after delete\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });\r",
+									"\r",
+									"    // Test for deleting a non-existent pharmacy:\r",
+									"    // URL: {{baseUrl}}/api/pharmacies/99999\r",
+									"    // pm.test(\"Status code is 404 Not Found for deleting non-existent pharmacy\", function () {\r",
+									"    //     pm.response.to.have.status(404);\r",
+									"    // });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/pharmacies/{{createdPharmacyId}}\n",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"pharmacies",
+								"{{createdPharmacyId}}\n"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "SECRET_STATIC_TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "createdDrugId",
+			"value": ""
+		},
+		{
+			"key": "createdPharmacyId",
+			"value": ""
+		}
+	]
+}

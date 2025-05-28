@@ -8,7 +8,29 @@ const inventoryRoutes = require('./api_routes/inventory'); // Import inventory r
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Hardcoded token for demonstration purposes
+const AUTH_TOKEN = 'SECRET_STATIC_TOKEN';
+
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (token == null) {
+    return res.sendStatus(401); // If no token, unauthorized
+  }
+
+  if (token === AUTH_TOKEN) {
+    next(); // Token is valid, proceed to the next middleware or route handler
+  } else {
+    return res.sendStatus(403); // If token is not valid, forbidden
+  }
+};
+
 app.use(express.json()); // Middleware to parse JSON bodies
+
+// Apply authentication middleware to all /api routes
+app.use('/api', authenticateToken);
 
 // API routes
 app.use('/api/pharmacies', pharmacyRoutes); // Use pharmacy routes
