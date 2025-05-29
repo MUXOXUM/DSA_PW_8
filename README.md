@@ -16,6 +16,7 @@ npm install
 ## Запуск
 
 ```bash
+cd server
 node server.js
 ```
 
